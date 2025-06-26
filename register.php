@@ -5,27 +5,18 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
+    $nom_complet = $_POST['nom_complet'] ?? '';
+    $whatsapp = $_POST['whatsapp'] ?? '';
+    $email = $_POST['email'] ?? '';
+    // Dans la fonction registerUser(), assurez-vous que le rôle est toujours 'user'
+
     
-    $db = getDbConnection();
-    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
-    
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['nom_complet'] = $user['nom_complet'];
-        $_SESSION['role'] = $user['role'];
-        
-        // Redirection selon le rôle
-        if ($user['role'] === 'admin') {
-            header('Location: admin.php');
-        } else {
-            header('Location: index.php');
-        }
+    if (registerUser($username, $password, $nom_complet, $whatsapp, $email)) {
+        loginUser($username, $password);
+        header('Location: index.php');
         exit;
     } else {
-        $error = "Identifiants incorrects";
+        $error = "Erreur lors de l'inscription. Le nom d'utilisateur existe peut-être déjà.";
     }
 }
 ?>
@@ -34,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion</title>
+    <title>Inscription - INFINITY STORE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
@@ -55,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 2rem 0;
         }
 
+        /* Animations de fond */
         body::before {
             content: '';
             position: absolute;
@@ -71,13 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             50% { transform: translateY(-20px); }
         }
 
-        .login-container {
+        .container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 25px;
-            padding: 3rem 2.5rem;
+            padding: 2.5rem;
             text-align: center;
-            max-width: 450px;
+            max-width: 480px;
             width: 90%;
             box-shadow: 
                 0 25px 50px rgba(37, 88, 103, 0.3),
@@ -96,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 transform: translateY(0);
             }
         }
-
         .logo {
             width: 120px;
             height: 60px;
@@ -138,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         form {
             display: flex;
             flex-direction: column;
-            gap: 1.8rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             text-align: left;
         }
@@ -153,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         input {
             width: 100%;
-            padding: 1.2rem 1.4rem;
+            padding: 1rem 1.2rem;
             border: 2px solid rgba(37, 88, 103, 0.2);
             border-radius: 12px;
             font-size: 1rem;
@@ -178,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: linear-gradient(135deg, #C79626, #957F67);
             color: white;
             border: none;
-            padding: 1.3rem 2rem;
+            padding: 1.2rem 2rem;
             border-radius: 50px;
             font-size: 1.1rem;
             font-weight: 600;
@@ -189,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(199, 150, 38, 0.4);
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
 
         button::before {
@@ -225,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .links p {
             color: #666;
             font-size: 0.95rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .links a {
@@ -256,21 +247,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .error {
-            color: #ff4444;
-            background-color: #ffebee;
+            color: #ff3333;
+            background-color: #ffeeee;
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            font-weight: 500;
-            border-left: 4px solid #ff4444;
-            animation: fadeIn 0.3s ease-out;
+            border-left: 4px solid #ff3333;
+            font-weight: 600;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* Éléments décoratifs flottants */
         .floating-element {
             position: absolute;
             opacity: 0.08;
@@ -280,26 +266,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .floating-element:nth-child(1) {
-            top: 12%;
-            left: 8%;
+            top: 15%;
+            left: 10%;
             animation-delay: 0s;
         }
 
         .floating-element:nth-child(2) {
-            top: 20%;
-            right: 12%;
+            top: 25%;
+            right: 15%;
             animation-delay: 3s;
         }
 
         .floating-element:nth-child(3) {
-            bottom: 25%;
-            left: 12%;
+            bottom: 20%;
+            left: 15%;
             animation-delay: 6s;
         }
 
         .floating-element:nth-child(4) {
-            bottom: 12%;
-            right: 8%;
+            bottom: 15%;
+            right: 10%;
             animation-delay: 9s;
         }
 
@@ -310,26 +296,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             75% { transform: translate(-25px, 10px) rotate(270deg); }
         }
 
-        .welcome-icon {
-            display: inline-block;
-            margin-left: 0.5rem;
-            animation: wave 2s ease-in-out infinite;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(15deg); }
-            75% { transform: rotate(-15deg); }
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            .login-container {
-                padding: 2.5rem 1.8rem;
+            .container {
+                padding: 2rem 1.5rem;
                 margin: 1rem;
             }
 
             h2 {
-                font-size: 1.9rem;
+                font-size: 1.8rem;
             }
 
             input, button {
@@ -338,36 +313,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         @media (max-width: 480px) {
-            .login-container {
-                padding: 2rem 1.2rem;
+            .container {
+                padding: 1.5rem 1rem;
             }
 
             h2 {
-                font-size: 1.7rem;
+                font-size: 1.6rem;
             }
 
             input {
-                padding: 1rem 1.2rem;
+                padding: 0.9rem 1rem;
             }
 
             button {
-                padding: 1.1rem 1.5rem;
+                padding: 1rem 1.5rem;
             }
         }
     </style>
 </head>
 <body>
     <!-- Éléments décoratifs -->
-    <div class="floating-element">🔐</div>
-    <div class="floating-element">✨</div>
     <div class="floating-element">📱</div>
+    <div class="floating-element">✨</div>
     <div class="floating-element">🔄</div>
+    <div class="floating-element">💼</div>
 
-    <div class="login-container">
-        <div class="logo">
-            <img src="logo.png" alt="Logo">
+    <div class="container">
+         <div class="logo">
+            <img src="logo.png" alt="INFINITY STORE Logo">
         </div>
-        <h2>🔐 Connexion <span class="welcome-icon">✨</span></h2>
+        <h2>✨ Inscription ✨</h2>
         
         <?php if ($error): ?>
             <div class="error"><?= htmlspecialchars($error) ?></div>
@@ -384,13 +359,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" id="password" name="password" required>
             </div>
 
-            <button type="submit">Se connecter</button>
+            <div>
+                <label for="nom_complet">Nom complet</label>
+                <input type="text" id="nom_complet" name="nom_complet" required>
+            </div>
+
+            <div>
+                <label for="whatsapp">Numéro WhatsApp</label>
+                <input type="text" id="whatsapp" name="whatsapp" required>
+            </div>
+
+            <div>
+                <label for="email">Email (facultatif)</label>
+                <input type="email" id="email" name="email">
+            </div>
+
+            <button type="submit">S'inscrire</button>
         </form>
 
         <div class="links">
-            <p>Pas encore inscrit ? <a href="../login/register.php">Inscrivez-vous ici</a></p>
-           
-            <p><a href="../acceuil/acceuil.html">← Detour à l'accueil</a></p>
+            <p>Déjà un compte? <a href="login.php">Se connecter</a></p>
+            <p><a href="../acceuil/acceuil.html">← Retour à l'accueil</a></p>
         </div>
     </div>
 </body>

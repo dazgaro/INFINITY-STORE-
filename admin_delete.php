@@ -4,7 +4,7 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'base');
+define('DB_NAME', 'iphone_store');
 
 /*******************************************************************
 * FONCTIONS DE BASE DE DONNÉES

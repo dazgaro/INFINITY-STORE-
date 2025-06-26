@@ -4,7 +4,7 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'base');
+define('DB_NAME', 'iphone_store');
 
 /*******************************************************************
 * FONCTIONS DE BASE DE DONNÉES
@@ -194,7 +194,7 @@ $tradeInValues = getTradeInValues();
                         <th>Type</th>
                         <th>Modèle</th>
                         <th>Stockage</th>
-                        <th>Prix (k FCFA)</th>
+                        <th>Prix ( FCFA)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -205,7 +205,7 @@ $tradeInValues = getTradeInValues();
                         <td><?= ucfirst($price['type']) ?></td>
                         <td><?= htmlspecialchars($price['model']) ?></td>
                         <td><?= htmlspecialchars($price['storage']) ?></td>
-                        <td><?= number_format($price['price'], 2) ?></td>
+                        <td><?= number_format($price['price']) ?></td>
                         <td>
                             <a href="admin_edit_price.php?id=<?= $price['id'] ?>&type=phone" class="btn btn-edit">Modifier</a>
                             <a href="admin_delete.php?id=<?= $price['id'] ?>&table=phone_prices" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</a>
@@ -235,12 +235,14 @@ $tradeInValues = getTradeInValues();
                     <tr>
                         <td><?= $value['id'] ?></td>
                         <td><?= htmlspecialchars($value['model']) ?></td>
-                        <td><?= number_format($value['base_value'], 2) ?></td>
-                        <td><?= number_format($value['superior_value'], 2) ?></td>
+                        <td><?= number_format($value['base_value']) ?></td>
+                        <td><?= number_format($value['superior_value']) ?></td>
                         <td>
                             Sans box: -<?= $value['deduction_no_box'] ?><br>
                             Écran: -<?= $value['deduction_screen_issue'] ?><br>
-                            Batterie: -<?= $value['deduction_battery_issue'] ?>
+                            Batterie: -<?= $value['deduction_battery_issue'] ?><br>
+                            Sans ID: -<?= $value['deduction_no_id'] ?><br>
+                            Coque arrière: -<?= $value['deduction_rear_issue'] ?>
                         </td>
                         <td>
                             <a href="admin_edit_price.php?id=<?= $value['id'] ?>&type=trade_in" class="btn btn-edit">Modifier</a>

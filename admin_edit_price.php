@@ -4,7 +4,7 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'base');
+define('DB_NAME', 'iphone_store');
 
 /*******************************************************************
 * FONCTIONS DE BASE DE DONNÉES
@@ -40,7 +40,9 @@ $tradeIn = [
     'superior_value' => '',
     'deduction_no_box' => '',
     'deduction_screen_issue' => '',
-    'deduction_battery_issue' => ''
+    'deduction_battery_issue' => '',
+    'deduction_no_id' => '',
+    'deduction_rear_issue' => ''
 ];
 
 // Détermine si on édite un prix existant ou on en crée un nouveau
@@ -87,14 +89,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $deductionNoBox = $_POST['deduction_no_box'];
         $deductionScreen = $_POST['deduction_screen_issue'];
         $deductionBattery = $_POST['deduction_battery_issue'];
+        $deductionNoID = $_POST['deduction_no_id'];
+        $deductionRear = $_POST['deduction_rear_issue'];
         
         if ($editMode) {
-            $stmt = $db->prepare("UPDATE trade_in_values SET model = ?, base_value = ?, superior_value = ?, deduction_no_box = ?, deduction_screen_issue = ?, deduction_battery_issue = ? WHERE id = ?");
-            $stmt->execute([$model, $baseValue, $superiorValue, $deductionNoBox, $deductionScreen, $deductionBattery, $_POST['id']]);
+            $stmt = $db->prepare("UPDATE trade_in_values SET model = ?, base_value = ?, superior_value = ?, deduction_no_box = ?, deduction_screen_issue = ?, deduction_battery_issue = ?, deduction_no_id = ?, deduction_rear_issue = ? WHERE id = ?");
+            $stmt->execute([$model, $baseValue, $superiorValue, $deductionNoBox, $deductionScreen, $deductionBattery, $deductionNoID, $deductionRear, $_POST['id']]);
             $message = "Valeur de reprise mise à jour avec succès!";
         } else {
-            $stmt = $db->prepare("INSERT INTO trade_in_values (model, base_value, superior_value, deduction_no_box, deduction_screen_issue, deduction_battery_issue) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$model, $baseValue, $superiorValue, $deductionNoBox, $deductionScreen, $deductionBattery]);
+            $stmt = $db->prepare("INSERT INTO trade_in_values (model, base_value, superior_value, deduction_no_box, deduction_screen_issue, deduction_battery_issue, deduction_no_id, deduction_rear_issue) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$model, $baseValue, $superiorValue, $deductionNoBox, $deductionScreen, $deductionBattery, $deductionNoID, $deductionRear]);
             $message = "Nouvelle valeur de reprise ajoutée avec succès!";
         }
     }
@@ -260,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-group">
-                    <label for="price">Prix (k FCFA)</label>
+                    <label for="price">Prix (FCFA)</label>
                     <input type="number" step="0.01" id="price" name="price" value="<?= $price['price'] ?>" required>
                 </div>
                 
@@ -278,17 +282,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-group">
-                    <label for="base_value">Valeur de base (k FCFA)</label>
+                    <label for="base_value">Valeur de base ( FCFA)</label>
                     <input type="number" step="0.01" id="base_value" name="base_value" value="<?= $tradeIn['base_value'] ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="superior_value">Valeur supérieure (k FCFA)</label>
+                    <label for="superior_value">Valeur supérieure ( FCFA)</label>
                     <input type="number" step="0.01" id="superior_value" name="superior_value" value="<?= $tradeIn['superior_value'] ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Déductions (k FCFA)</label>
+                    <label>Déductions ( FCFA)</label>
                     <div class="deductions-container">
                         <div class="deduction-item">
                             <label for="deduction_no_box">Sans boîte</label>
@@ -301,6 +305,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="deduction-item">
                             <label for="deduction_battery_issue">Problème batterie</label>
                             <input type="number" step="0.01" id="deduction_battery_issue" name="deduction_battery_issue" value="<?= $tradeIn['deduction_battery_issue'] ?>" required>
+                        </div>
+                        <div class="deduction-item">
+                            <label for="deduction_no_id">Sans ID</label>
+                            <input type="number" step="0.01" id="deduction_no_id" name="deduction_no_id" value="<?= $tradeIn['deduction_no_id'] ?>" required>
+                        </div>
+                        <div class="deduction-item">
+                            <label for="deduction_rear_issue">Problème coque arrière</label>
+                            <input type="number" step="0.01" id="deduction_rear_issue" name="deduction_rear_issue" value="<?= $tradeIn['deduction_rear_issue'] ?>" required>
                         </div>
                     </div>
                 </div>
